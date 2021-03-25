@@ -44,7 +44,7 @@ printlog " "
 [ ! -d $tmp ] && mkdir $tmp
 
 if [[ $(getp set.time $profile) == true ]]; then
-setime -r $editor/product $(getp setime.dat)
+setime -r $editor/product $(getp setime.date)
 setime -r $editor/system $(getp setime.date)
 setime -r $editor/vendor $(getp setime.date)
 fi
