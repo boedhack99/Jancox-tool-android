@@ -67,6 +67,12 @@ $py $pybin/payload_dumper.py $tmp/*.bin --out $tmp >> $loglive
 payloadbin=true
 fi
 
+if [ -f $tmp/product.new.dat.br ]; then
+printlog "- Extraction product.new.dat.br... "
+$bin/brotli -d $tmp/product.new.dat.br -o $tmp/product.new.dat
+del $tmp/product.new.dat.br $tmp/product.patch.dat
+fi
+
 if [ -f $tmp/system.new.dat.br ]; then
 printlog "- Extraction system.new.dat.br... "
 $bin/brotli -d $tmp/system.new.dat.br -o $tmp/system.new.dat
@@ -77,6 +83,12 @@ if [ -f $tmp/vendor.new.dat.br ]; then
 printlog "- Extraction vendor.new.dat.br... "
 $bin/brotli -d $tmp/vendor.new.dat.br -o $tmp/vendor.new.dat
 del $tmp/vendor.new.dat.br $tmp/vendor.patch.dat
+fi
+
+if [ -f $tmp/product.new.dat ]; then
+printlog "- Extraction product.new.dat... "
+$py $pybin/sdat2img.py $tmp/product.transfer.list $tmp/product.new.dat $tmp/product.img >> $loglive
+del $tmp/product.new.dat $tmp/product.transfer.list
 fi
 
 if [ -f $tmp/system.new.dat ]; then
@@ -93,6 +105,12 @@ fi
 
 [ -d $jancox/editor ] && rm -rf $editor
 mkdir -p $editor
+if [ -f $tmp/product.img ]; then
+printlog "- Extraction product.img... "
+$py $pybin/imgextractor.py $tmp/product.img $editor/product >> $loglive
+del $tmp/product.img
+fi
+
 if [ -f $tmp/system.img ]; then
 printlog "- Extraction system.img... "
 $py $pybin/imgextractor.py $tmp/system.img $editor/system >> $loglive

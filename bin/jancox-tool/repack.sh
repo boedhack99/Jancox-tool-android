@@ -44,23 +44,36 @@ printlog " "
 [ ! -d $tmp ] && mkdir $tmp
 
 if [[ $(getp set.time $profile) == true ]]; then
+setime -r $editor/product $(getp setime.dat)
 setime -r $editor/system $(getp setime.date)
 setime -r $editor/vendor $(getp setime.date)
 fi
 
+if [ -d $editor/product ]; then
+printlog "-Repack product"
+size1=`$bb du -sk $editor/product | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
+$bin/make_ext4fs -s -L product -T 2009110000 -S $editor/product_file_contexts -C $editor/product_fs_config -l $size1 -aproduct $rtmp/product.img $editor/product > /dev/null
+sedlog "product size = $size1"
+
 if [ -d $editor/system ]; then
 printlog "- Repack system"
-size1=`$bb du -sk $editor/system | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
+size2=`$bb du -sk $editor/system | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
 $bin/make_ext4fs -s -L system -T 2009110000 -S $editor/system_file_contexts -C $editor/system_fs_config -l $size1 -a system $tmp/system.img $editor/system/ > /dev/null
-sedlog "system size = $size1"
+sedlog "system size = $size2"
 fi
 
 if [ -d $editor/vendor ]; then
 printlog "- Repack vendor"
-size2=`$bb du -sk $editor/vendor | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
-$bin/make_ext4fs -s -L vendor -T 2009110000 -S $editor/vendor_file_contexts -C $editor/vendor_fs_config -l $size2 -a vendor $tmp/vendor.img $editor/vendor/ > /dev/null
+size3=`$bb du -sk $editor/vendor | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
+$bin/make_ext4fs -s -L vendor -T 2009110000 -S $editor/vendor_file_contexts -C $editor/vendor_fs_config -l $size3 -a vendor $tmp/vendor.img $editor/vendor/ > /dev/null
 fi;
 
+if [ -f $tmp/product.img ]; then
+printlog "- Repack product.img"
+[ -f $tmp/product.new.dat ] && rm -rf $tmp/product.new.dat
+$py $pybin/img2sdat.py $tmp/system.img -o $tmp -v 4 -p product > /dev/null
+[ -f $tmp/product.img ] && rm -rf $tmp/product.img
+fi
 
 if [ -f $tmp/system.img ]; then
 printlog "- Repack system.img"
@@ -79,6 +92,12 @@ fi
 #level brotli
 brlvl=$(getp brotli.level $jancox/bin/jancox.prop)
 #
+if [ -f $tmp/product.new.dat ]; then
+printlog "- Repack product.new.dat"
+[ -f $tmp/product.new.dat.br ] && rm -rf $tmp/product.new.dat.br
+$bin/brotli -$brlvl -j -w 24 $tmp/product.new.dat >/dev/null
+fi
+
 if [ -f $tmp/system.new.dat ]; then
 printlog "- Repack system.new.dat"
 [ -f $tmp/system.new.dat.br ] && rm -rf $tmp/system.new.dat.br
