@@ -102,6 +102,11 @@ class ErrorCode(object):
   INSUFFICIENT_CACHE_SPACE = 3006
   TUNE_PARTITION_FAILURE = 3007
   APPLY_PATCH_FAILURE = 3008
+  PRODUCT_VERIFICATION_FAILURE = 4000
+  PRODUCT_UPDATE_FAILURE = 4001
+  PRODUCT_UNEXPECTED_CONTENTS = 4002
+  PRODUCT_NONZERO_CONTENTS = 4003
+  PRODUCT_RECOVER_FAILURE = 4004
 
 class ExternalError(RuntimeError):
   pass
@@ -211,7 +216,17 @@ def LoadInfoDict(input_file, input_dir=None):
       d["ramdisk_fs_config"] = os.path.join(
           input_dir, "META", "root_filesystem_config.txt")
 
-    # Redirect {system,vendor}_base_fs_file.
+    # Redirect {product,system,vendor}_base_fs_file.
+    if "product_base_fs_file" in d:
+      basename = os.path.basename(d["product_base_fs_file"])
+      product_base_fs_file = os.path.join(input_dir, "META", basename)
+      if os.path.exists(product_base_fs_file):
+        d["product_base_fs_file"] = product_base_fs_file
+      else:
+        print("Warning: failed to find product base fs file: %s" % (
+            product_base_fs_file,))
+        del d["product_base_fs_file"]
+
     if "system_base_fs_file" in d:
       basename = os.path.basename(d["system_base_fs_file"])
       system_base_fs_file = os.path.join(input_dir, "META", basename)
@@ -253,6 +268,7 @@ def LoadInfoDict(input_file, input_dir=None):
 
   makeint("recovery_api_version")
   makeint("blocksize")
+  makeint("product_size")
   makeint("system_size")
   makeint("vendor_size")
   makeint("userdata_size")
@@ -1448,7 +1464,7 @@ class BlockDifference(object):
       if self.version >= 4:
 
         # Bug: 21124327
-        # When generating incrementals for the system and vendor partitions in
+        # When generating incrementals for the product system and vendor partitions in
         # version 4 or newer, explicitly check the first block (which contains
         # the superblock) of the partition to see if it's what we expect. If
         # this check fails, give an explicit log message about the partition
