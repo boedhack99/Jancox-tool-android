@@ -140,8 +140,10 @@ fi
 [ -d $tmp/install ] && mv -f $tmp/install $editor
 [ -f $tmp/boot.img ] && mv $tmp/boot.img $editor/boot
 [ -f $tmp/compatibility.zip ] && mv $tmp/compatibility.zip $editor
+[ -f $tmp/product_file_contexts ] && mv -f $tmp/product_file_contexts $editor/product_file_contexts
 [ -f $tmp/system_file_contexts ] && mv -f $tmp/system_file_contexts $editor/system_file_contexts
 [ -f $tmp/vendor_file_contexts ] && mv -f $tmp/vendor_file_contexts $editor/vendor_file_contexts
+[ -f $tmp/product_fs_config ] && mv -f $tmp/product_fs_config $editor/product_fs_config
 [ -f $tmp/system_fs_config ] && mv -f $tmp/system_fs_config $editor/system_fs_config
 [ -f $tmp/vendor_fs_config ] && mv -f $tmp/vendor_fs_config $editor/vendor_fs_config
 
