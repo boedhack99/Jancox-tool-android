@@ -1,4 +1,6 @@
-brotli.level=1
 zipping=true
+zip.level=0
+compress.dat=true
+brotli.level=1
 set.time=false
 setime.date=200901011500
