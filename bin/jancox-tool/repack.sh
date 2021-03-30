@@ -69,7 +69,7 @@ size3=`$bb du -sk $editor/vendor | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}
 $bin/make_ext4fs -s -L vendor -T 2009110000 -S $editor/vendor_file_contexts -C $editor/vendor_fs_config -l $size3 -a vendor $tmp/vendor.img $editor/vendor/ > $loglive
 fi;
 
-if [ -f $tmp/product.img ]; then
+if [ -f $tmp/product.img ] && [ $(getp compress.dat $profile) = true ]; then
 printlog "- Repack product.img"
 [ -f $tmp/product.new.dat ] && rm -rf $tmp/product.new.dat
 $py $pybin/img2sdat.py $tmp/system.img -o $tmp -v 4 -p product >> $loglive
